@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Database.Data.Model;
 using Telegram.Bot.Types;
 using WebCoreApplication.Services;
@@ -14,11 +15,11 @@ namespace WebCoreApplication.Models
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
             _user = user ?? throw new ArgumentNullException(nameof(user));
+            LastRequest = new List<Request>();
         }
 
         public Database.Data.Model.User Data => _data;
         public Telegram.Bot.Types.User User => _user;
-        public Request LastRequest { get; set; }
-
+        public List<Request> LastRequest { get; private set; }
     }
 }

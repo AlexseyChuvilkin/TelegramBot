@@ -18,6 +18,5 @@ namespace Database.Data.Model
         public ParityIndependentScheduleSubject(SubjectInstance subject, int order, DayOfWeek weekday, Group group) : base(order, weekday, group) => _subject = subject ?? throw new ArgumentNullException(nameof(subject));
 
         public SubjectInstance Subject { get => _subject; set => _subject = value; }
-        public override SubjectInstance SubjectInstance => Subject;
     }
 }

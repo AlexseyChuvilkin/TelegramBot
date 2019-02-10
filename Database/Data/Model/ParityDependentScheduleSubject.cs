@@ -25,6 +25,6 @@ namespace Database.Data.Model
         public SubjectInstance ParitySubjectInstance { get => _numeratorSubjectInstance; set => _numeratorSubjectInstance = value; }
         public SubjectInstance NotParitySubjectInstance { get => _denominatorSubjectInstance; set => _denominatorSubjectInstance = value; }
 
-        public override SubjectInstance SubjectInstance => Group.Parity ? ParitySubjectInstance : NotParitySubjectInstance;
+        public SubjectInstance GetSubject(bool parity) => parity ? _numeratorSubjectInstance : _denominatorSubjectInstance;
     }
 }

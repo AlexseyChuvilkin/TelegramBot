@@ -23,6 +23,7 @@ namespace WebCoreApplication
             services.AddScoped<IUpdateService, UpdateService>();
             services.AddSingleton<IBotService, BotService>();
             Data.Initialize();
+            NotificationService.Initialize();
             services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
         }
 

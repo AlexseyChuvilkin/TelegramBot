@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using WebCoreApplication.Models;
@@ -9,61 +10,83 @@ namespace WebCoreApplication.Services
     {
         private static string GetGroupInfo(UserModel userModel)
         {
-            string parity = userModel.Data.Group.Parity ? "числитель" : "знаменатель";
+            string parity = userModel.Data.Group.Parity(Data.CorrectedDateTime) ? "числитель" : "знаменатель";
             DateTime startEducation = userModel.Data.Group.StartEducation;
-            int weekCount = (DateTime.Now - startEducation).Days + ((int)startEducation.DayOfWeek - 1) / 7 + 1;
+            int weekCount = ((Data.CorrectedDateTime - startEducation).Days + ((int)startEducation.DayOfWeek - 1)) / 7 + 1;
             string result =
             "*Информация о группе:*\n" +
             "`Название: " + userModel.Data.Group.Name + ".\n" +
             "Начало семестра: " + userModel.Data.Group.StartEducation.ToShortDateString() + ".\n" +
             "Номер для приглашения: " + userModel.Data.Group.ID + ".\n" +
-            weekCount + " неделя " + parity + "`.";
+            weekCount + " неделя " + parity + ".`";
             return result;
         }
 
         public static Responce Handle(Update update, Request request)
         {
             UserModel userModel = Data.GetUserModel(update.Message.From);
-
+            Responce responce;
             switch (request)
             {
                 case Request.Startup:
-                    return userModel.Data.Group == null
-                        ? new Responce(KeyboardService.GetKeyboardByRequest(request), "Стартовое меню.")
+                {
+                    responce = userModel.Data.Group == null
+                        ?  new Responce(KeyboardService.GetKeyboardByRequest(request), "Стартовое меню.")
                         : new Responce(KeyboardService.GetKeyboardByRequest(Request.GroupMenu), GetGroupInfo(userModel));
-
+                    break;
+                }
+                case Request.Backward:
+                {
+                    return Handle(update, userModel.LastRequest[userModel.LastRequest.Count - 2]);
+                }
                 case Request.CreateGroup:
                 {
-                    userModel.LastRequest = Request.CreateGroup;
-                    return new Responce(KeyboardService.GetKeyboardByRequest(request), "Введите название группы: .");
+                    userModel.LastRequest.Add(Request.CreateGroup);
+                    responce = new Responce(KeyboardService.GetKeyboardByRequest(request), "Введите название группы: .");
+                    break;
                 }
                 case Request.JoinGroup:
                 {
-                    userModel.LastRequest = Request.JoinGroup;
-                    return new Responce(KeyboardService.GetKeyboardByRequest(request), "Введите номер группы: .");
+                    userModel.LastRequest.Add(Request.JoinGroup);
+                    responce = new Responce(KeyboardService.GetKeyboardByRequest(request), "Введите номер группы: .");
+                    break;
                 }
                 case Request.GroupMenu:
-                    return new Responce(KeyboardService.GetKeyboardByRequest(request), GetGroupInfo(userModel));
+                    responce = new Responce(KeyboardService.GetKeyboardByRequest(request), GetGroupInfo(userModel));
+                    break;
                 case Request.LeaveGroup:
                 {
                     Data.LeaveGroup(userModel);
-                    return new Responce(KeyboardService.GetKeyboardByRequest(Request.Startup), "Стартовое меню.");
+                    responce = new Responce(KeyboardService.GetKeyboardByRequest(Request.Startup), "Стартовое меню.");
+                    break;
                 }
                 case Request.WatchFullSchedule:
                 {
-                    return Data.GetFullShedule(userModel, out string schedule)
-                        ? new Responce(KeyboardService.GetKeyboardByRequest(Request.None), schedule)
-                        : new Responce(KeyboardService.GetKeyboardByRequest(Request.None), "Расписание не достпуно.");
+                    responce = Data.GetFullShedule(userModel, out string schedule)
+                        ? new Responce(KeyboardService.GetKeyboardByRequest(Request.Backward), schedule)
+                        : new Responce(KeyboardService.GetKeyboardByRequest(Request.Backward), "Расписание не достпуно.");
+                    break;
                 }
-                case Request.WatchOnTomorrow:
+                case Request.WatchScheduleOnTomorrow:
                 {
-                    return Data.GetSheduleOnTomorrow(userModel, out string schedule)
-                        ? new Responce(KeyboardService.GetKeyboardByRequest(Request.None), schedule)
-                        : new Responce(KeyboardService.GetKeyboardByRequest(Request.None), "Расписание не достпуно.");
+                    responce = Data.GetSheduleOnTomorrow(userModel, out string schedule)
+                        ? new Responce(KeyboardService.GetKeyboardByRequest(Request.Backward), schedule)
+                        : new Responce(KeyboardService.GetKeyboardByRequest(Request.Backward), "Расписание не достпуно.");
+                    break;
+                }
+                case Request.WatchScheduleOnToday:
+                {
+                    responce = Data.GetSheduleOnToday(userModel, out string schedule)
+                        ? new Responce(KeyboardService.GetKeyboardByRequest(Request.Backward), schedule)
+                        : new Responce(KeyboardService.GetKeyboardByRequest(Request.Backward), "Расписание не достпуно.");
+                    break;
                 }
                 default:
-                    return new Responce(KeyboardService.GetKeyboardByRequest(Request.None), "Введите /start");
+                    responce = new Responce(KeyboardService.GetKeyboardByRequest(Request.None), "Введите /start");
+                    break;
             }
+            userModel.LastRequest.Add(request);
+            return responce;
         }
     }
     public struct Responce

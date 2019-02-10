@@ -19,8 +19,8 @@ namespace Database.Data
         public DataContext()
         {
             _users = Set<User>();
-            _groups = Set<Group>();
             _subjectCalls = Set<SubjectCall>();
+            _groups = Set<Group>();
             _subject = Set<Subject>(); 
             _subjectInstance = Set<SubjectInstance>(); 
             _scheduleField = Set<ScheduleField>();

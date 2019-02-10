@@ -25,11 +25,13 @@ namespace WebCoreApplication.Services
             List<RequestItem> requestItems = new List<RequestItem>
             {
                 new RequestItem(Request.Startup, "/start"),
+                new RequestItem(Request.Backward, "Назад."),
                 new RequestItem(Request.CreateGroup, "Создать расписание для группы."),
                 new RequestItem(Request.JoinGroup, "Присоединиться к группе."),
                 new RequestItem(Request.LeaveGroup, "Покинуть группу."),
-                new RequestItem(Request.WatchFullSchedule, "Посмотреть всё расписание."),
-                new RequestItem(Request.WatchOnTomorrow, "Посмотреть расписание на завтра."),
+                new RequestItem(Request.WatchFullSchedule, "Всё расписание."),
+                new RequestItem(Request.WatchScheduleOnTomorrow, "Расписание на завтра."),
+                new RequestItem(Request.WatchScheduleOnToday, "Расписание на сегодня."),
             };
 
             _requests = new Dictionary<string, RequestItem>();

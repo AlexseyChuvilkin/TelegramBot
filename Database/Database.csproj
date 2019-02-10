@@ -136,13 +136,14 @@
     <Compile Include="Data\Model\SubjectInstance.cs" />
     <Compile Include="Data\SubjectType.cs" />
     <Compile Include="Data\Model\User.cs" />
-    <Compile Include="Migrations\20190208164421_I .cs" />
-    <Compile Include="Migrations\20190208164421_I .designer.cs">
-      <DependentUpon>20190208164421_I .cs</DependentUpon>
+    <Compile Include="Migrations\20190210162132_I.cs" />
+    <Compile Include="Migrations\20190210162132_I.designer.cs">
+      <DependentUpon>20190210162132_I.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DataContextModelSnapshot.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScheduleView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

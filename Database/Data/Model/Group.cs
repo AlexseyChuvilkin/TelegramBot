@@ -43,6 +43,6 @@ namespace Database.Data.Model
         public virtual ICollection<User> Users { get => _users; set => _users = value; }
         public DateTime StartEducation { get => _startEducation; set => _startEducation = value; }
         public virtual ICollection<ScheduleField> ScheduleSubjects { get => _scheduleSubjects; set => _scheduleSubjects = value; }
-        public bool Parity => (((DateTime.Now - _startEducation).Days + (int)_startEducation.DayOfWeek - 1) / 7) % 2 == 0 ? true : false;
+        public bool Parity(DateTime dateTime)=> (((dateTime - _startEducation).Days + (int)_startEducation.DayOfWeek - 1) / 7) % 2 == 0 ? true : false;
     }
 }

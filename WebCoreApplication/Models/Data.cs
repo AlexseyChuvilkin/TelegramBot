@@ -1,4 +1,5 @@
-﻿using Database.Data;
+﻿using Database;
+using Database.Data;
 using Database.Data.Model;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,15 @@ namespace WebCoreApplication.Models
 {
     public static class Data
     {
-        private const int _weekdayCount = 7;
-
+        private const int _timeDifferent = 0;
         static private DataContext _dataContext;
         static private Dictionary<int, UserModel> _userModels;
         static private Dictionary<UserModel, string> _creationGroup;
         static private List<SubjectCall> _subjectCalls;
+
+        static public DateTime CorrectedDateTime => DateTime.Now.AddHours(_timeDifferent);
+        static public DataContext DataContext => _dataContext;
+        static public List<SubjectCall> SubjectCalls => _subjectCalls;
 
         static public void Initialize()
         {
@@ -24,55 +28,12 @@ namespace WebCoreApplication.Models
             _subjectCalls.Sort();
         }
 
-        static private string GetWeekDayString(DayOfWeek dayOfWeek)
-        {
-            switch (dayOfWeek)
-            {
-                case DayOfWeek.Friday:
-                    return "Пятница";
-                case DayOfWeek.Monday:
-                    return "Понедельник";
-                case DayOfWeek.Saturday:
-                    return "Суббота";
-                case DayOfWeek.Sunday:
-                    return "Воскресенье";
-                case DayOfWeek.Thursday:
-                    return "Четверг";
-                case DayOfWeek.Tuesday:
-                    return "Вторник";
-                case DayOfWeek.Wednesday:
-                    return "Среда";
-                default:
-                    return string.Empty;
-            }
-        }
-        static private string GetSubjectTypeString(SubjectType subjectType)
-        {
-            switch (subjectType)
-            {
-                case SubjectType.Lecture:
-                    return "Лекция";
-                case SubjectType.Laboratory:
-                    return "Лабораторная";
-                case SubjectType.Seminar:
-                    return "Семинар";
-                case SubjectType.Exercise:
-                    return "Упражнение";
-                case SubjectType.Coursework:
-                    return "Курсовая";
-                case SubjectType.ScientificResearch:
-                    return "Научная работа";
-                default:
-                    return string.Empty;
-            }
-        }
-
         static public UserModel GetUserModel(Telegram.Bot.Types.User user)
         {
             if (_userModels.TryGetValue(user.Id, out UserModel userModel))
                 return userModel;
 
-            if (!_dataContext.GetUserByTelegramId(user.Id, out Database.Data.Model.User data))
+            if (!_dataContext.GetUserByTelegramId(user.Id, out User data))
                 _dataContext.CreateUser(user.Id, out data);
             UserModel result;
             _userModels.Add(user.Id, result = new UserModel(data, user));
@@ -109,64 +70,8 @@ namespace WebCoreApplication.Models
             userModel.Data.Group = null;
             _dataContext.SaveChanges();
         }
-        static public bool GetFullShedule(UserModel userModel, out string shedule)
-        {
-            shedule = string.Empty;
-            if (userModel.Data.Group == null)
-                return false;
-            if (userModel.Data.Group.ScheduleSubjects == null)
-                return false;
-            List<ScheduleField> scheduleFields = userModel.Data.Group.ScheduleSubjects.ToList();
-            for (int day = 0; day < _weekdayCount; day++)
-            {
-                List<ScheduleField> dayShedule = scheduleFields.Where(x => x.DayOfWeek == (DayOfWeek)day).ToList();
-                if (dayShedule.Count == 0)
-                    continue;
-                shedule += "*" + GetWeekDayString((DayOfWeek)day) + "*\n\n";
-                dayShedule.Sort(new Comparison<ScheduleField>((x, y) => x.Order.CompareTo(y.Order)));
-                int daySheduleCount = dayShedule.Count;
-                for (int sheduleField = 0; sheduleField < daySheduleCount; sheduleField++)
-                {
-                    if (dayShedule[sheduleField] is ParityDependentScheduleSubject subject)
-                    {
-                        string subjectOrder = (subject.Order + 1).ToString();
-                        shedule += @"`    " + 
-                        subjectOrder + ". (Ч) " + subject.ParitySubjectInstance.Subject.Name + " " + subject.ParitySubjectInstance.Audience + " " + subject.ParitySubjectInstance.Teacher + " "
-                        + GetSubjectTypeString(subject.ParitySubjectInstance.SubjectType) + "\n" + 
-                        subjectOrder + ". (З) " + subject.NotParitySubjectInstance.Subject.Name + " " + subject.NotParitySubjectInstance.Audience + " " + subject.NotParitySubjectInstance.Teacher + " "
-                        + GetSubjectTypeString(subject.NotParitySubjectInstance.SubjectType) + "`\n\n";
-                    }
-                    else
-                        shedule += @"`    " + (dayShedule[sheduleField].Order + 1).ToString() + ". " + dayShedule[sheduleField].SubjectInstance.Subject.Name + " " + dayShedule[sheduleField].SubjectInstance.Audience + " " + dayShedule[sheduleField].SubjectInstance.Teacher + " "
-                        + GetSubjectTypeString(dayShedule[sheduleField].SubjectInstance.SubjectType) + "`\n\n";
-                }
-            }
-            return true;
-        }
-        static public bool GetSheduleOnTomorrow(UserModel userModel, out string shedule)
-        {
-            shedule = string.Empty;
-            if (userModel.Data.Group == null)
-                return false;
-            if (userModel.Data.Group.ScheduleSubjects == null)
-                return false;
-            shedule += "*" + GetWeekDayString(DateTime.Now.AddDays(1).DayOfWeek) + "*\n\n";
-            List<ScheduleField> dayShedule = userModel.Data.Group.ScheduleSubjects.Where(x => (int)x.DayOfWeek == ((int)DateTime.Now.AddDays(1).DayOfWeek)).ToList();
-            if (dayShedule.Count == 0)
-                return true;
-
-            dayShedule.Sort(new Comparison<ScheduleField>((x, y) => x.Order.CompareTo(y.Order)));
-            int daySheduleCount = dayShedule.Count;
-            for (int sheduleField = 0; sheduleField < daySheduleCount; sheduleField++)
-            {
-                shedule += 
-                "`" + (dayShedule[sheduleField].Order + 1).ToString() + "." + dayShedule[sheduleField].SubjectInstance.Subject.Name + "`\n" +
-                "▸ `" + GetSubjectTypeString(dayShedule[sheduleField].SubjectInstance.SubjectType) + "`\n" +
-                "▸ `" + dayShedule[sheduleField].SubjectInstance.Audience + "`\n" +
-                "▸ `" + dayShedule[sheduleField].SubjectInstance.Teacher + "`\n"+
-                "▸ `" + _subjectCalls[dayShedule[sheduleField].Order].StartLesson + " - " + _subjectCalls[dayShedule[sheduleField].Order].EndLesson + "`\n\n";
-            }
-            return true;
-        }
+        static public bool GetFullShedule(UserModel userModel, out string schedule) => ScheduleView.GetSchedule(userModel.Data.Group, out schedule);
+        static public bool GetSheduleOnTomorrow(UserModel userModel, out string schedule) => ScheduleView.GetSchedule(userModel.Data.Group, CorrectedDateTime.AddDays(1), _subjectCalls, out schedule);
+        static public bool GetSheduleOnToday(UserModel userModel, out string schedule) => ScheduleView.GetSchedule(userModel.Data.Group, CorrectedDateTime, _subjectCalls, out schedule);
     }
 }

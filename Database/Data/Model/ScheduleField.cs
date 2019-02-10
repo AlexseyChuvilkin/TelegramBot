@@ -34,6 +34,5 @@ namespace Database.Data.Model
         public int Order { get => _order; set => _order = value; }
         public DayOfWeek DayOfWeek { get => _weekday; set => _weekday = value; }
         public Group Group { get => _group; set => _group = value; }
-        public abstract SubjectInstance SubjectInstance { get; }
     }
 }

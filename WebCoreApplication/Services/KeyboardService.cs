@@ -5,7 +5,7 @@ namespace WebCoreApplication.Services
 {
     public static class KeyboardService
     {
-        private enum Keyboard { None, StartMenu, CreateGroup, GroupMenu}
+        private enum Keyboard { None, Backward, StartMenu, CreateGroup, GroupMenu}
         static private Dictionary<Keyboard, ReplyMarkupBase> _keyboards;
 
         static public void Initialize()
@@ -15,6 +15,18 @@ namespace WebCoreApplication.Services
                 { Keyboard.None, new ReplyKeyboardRemove() { Selective = true } }
             };
 
+            ReplyKeyboardMarkup backward = new ReplyKeyboardMarkup
+            {
+                Keyboard = new KeyboardButton[][]
+                    {
+                        new KeyboardButton[]
+                        {
+                            new KeyboardButton(RequestService.GetMessageByRequest(Request.Backward)),
+                        },
+                    }
+            };
+            backward.ResizeKeyboard = true;
+            _keyboards.Add(Keyboard.Backward, backward);
             ReplyKeyboardMarkup startMenu = new ReplyKeyboardMarkup
             {
                 Keyboard = new KeyboardButton[][]
@@ -30,6 +42,7 @@ namespace WebCoreApplication.Services
                         },
                     }
             };
+            startMenu.ResizeKeyboard = true;
             _keyboards.Add(Keyboard.StartMenu, startMenu);
             ReplyKeyboardMarkup createGroupMenu = new ReplyKeyboardMarkup
             {
@@ -41,6 +54,7 @@ namespace WebCoreApplication.Services
                         },
                     }
             };
+            createGroupMenu.ResizeKeyboard = true;
             _keyboards.Add(Keyboard.CreateGroup, createGroupMenu);
             ReplyKeyboardMarkup  groupMenu = new ReplyKeyboardMarkup
             {
@@ -50,14 +64,21 @@ namespace WebCoreApplication.Services
                         {
                             new KeyboardButton(RequestService.GetMessageByRequest(Request.LeaveGroup)),
                         },
-
-                        new KeyboardButton[]
+                         new KeyboardButton[]
                         {
                             new KeyboardButton(RequestService.GetMessageByRequest(Request.WatchFullSchedule)),
-                            new KeyboardButton(RequestService.GetMessageByRequest(Request.WatchOnTomorrow))
+                        },
+                          new KeyboardButton[]
+                        {
+                            new KeyboardButton(RequestService.GetMessageByRequest(Request.WatchScheduleOnTomorrow)),
+                        },
+                           new KeyboardButton[]
+                        {
+                            new KeyboardButton(RequestService.GetMessageByRequest(Request.WatchScheduleOnToday)),
                         },
                     }
             };
+            groupMenu.ResizeKeyboard = true;
             _keyboards.Add(Keyboard.GroupMenu, groupMenu);
         }
 
@@ -67,6 +88,8 @@ namespace WebCoreApplication.Services
             {
                 case Request.Startup:
                     return _keyboards.GetValueOrDefault(Keyboard.StartMenu);
+                case Request.Backward:
+                    return _keyboards.GetValueOrDefault(Keyboard.Backward);
                 case Request.CreateGroup:
                     return _keyboards.GetValueOrDefault(Keyboard.None);
                 case Request.JoinGroup:
