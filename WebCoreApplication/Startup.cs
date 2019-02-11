@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using WebApplication;
 using WebApplication.Services;
 using WebCoreApplication.Models;
@@ -20,11 +21,9 @@ namespace WebCoreApplication
             services.AddMvc();
             RequestService.Initialize();
             KeyboardService.Initialize();
-            services.AddScoped<IUpdateService, UpdateService>();
-            services.AddSingleton<IBotService, BotService>();
+            UpdateService.Initialize(new BotService(new BotConfiguration("689079563:AAEZFSFQ_juEfVTuyOAwevo4Fz2oJ-UrnXs", "", 25000)));
             Data.Initialize();
             NotificationService.Initialize();
-            services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
         }
 
         public void Configure(IApplicationBuilder app) => app.UseMvc();

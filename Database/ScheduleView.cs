@@ -8,20 +8,9 @@ namespace Database
 {
     static public class ScheduleView
     {
-        private struct ScheduleViewItem
-        {
-            public int Order;
-            public SubjectInstance SubjectInstance;
-
-            public ScheduleViewItem(int order, SubjectInstance subjectInstance)
-            {
-                Order = order;
-                SubjectInstance = subjectInstance ?? throw new ArgumentNullException(nameof(subjectInstance));
-            }
-        }
         private const int _weekDayCount = 7;
 
-        static private string GetWeekDayString(DayOfWeek dayOfWeek)
+        static public string GetWeekDayString(DayOfWeek dayOfWeek)
         {
             switch (dayOfWeek)
             {
@@ -43,7 +32,7 @@ namespace Database
                     return string.Empty;
             }
         }
-        static private string GetSubjectTypeString(SubjectType subjectType)
+        static public string GetSubjectTypeString(SubjectType subjectType)
         {
             switch (subjectType)
             {
@@ -113,7 +102,7 @@ namespace Database
             return true;
         }
 
-        static private List<ScheduleViewItem> GetSchedule(Group group, DayOfWeek dayOfWeek, bool parity)
+        static public List<ScheduleViewItem> GetSchedule(Group group, DayOfWeek dayOfWeek, bool parity)
         {
             List<ScheduleField> dayScheduleFields = group.ScheduleSubjects.Where(x => x.DayOfWeek == dayOfWeek).ToList();
             if (dayScheduleFields.Count == 0)
@@ -161,6 +150,18 @@ namespace Database
                 }
             }
             return scheduleViewItems;
+        }
+    }
+
+    public struct ScheduleViewItem
+    {
+        public int Order;
+        public SubjectInstance SubjectInstance;
+
+        public ScheduleViewItem(int order, SubjectInstance subjectInstance)
+        {
+            Order = order;
+            SubjectInstance = subjectInstance ?? throw new ArgumentNullException(nameof(subjectInstance));
         }
     }
 }

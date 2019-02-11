@@ -7,6 +7,7 @@ namespace Database.Data
 {
     public class DataContext : DbContext
     {
+        private readonly DbSet<Log> _logs;
         private readonly DbSet<User> _users;
         private readonly DbSet<Group> _groups;
         private readonly DbSet<SubjectCall> _subjectCalls;
@@ -18,16 +19,18 @@ namespace Database.Data
 
         public DataContext()
         {
+            _logs = Set<Log>();
             _users = Set<User>();
             _subjectCalls = Set<SubjectCall>();
             _groups = Set<Group>();
-            _subject = Set<Subject>(); 
-            _subjectInstance = Set<SubjectInstance>(); 
+            _subject = Set<Subject>();
+            _subjectInstance = Set<SubjectInstance>();
             _scheduleField = Set<ScheduleField>();
-            _parityDependentScheduleSubject = Set<ParityDependentScheduleSubject>(); 
+            _parityDependentScheduleSubject = Set<ParityDependentScheduleSubject>();
             _parityIndependentScheduleSubject = Set<ParityIndependentScheduleSubject>();
 
             _subjectCalls.Load();
+            _logs.Load();
             _users.Load();
             _groups.Load();
             _subject.Load();
@@ -40,6 +43,7 @@ namespace Database.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(@"Data Source=mysqlserver228.database.windows.net;Initial Catalog=TelegramBot;User ID=azureuser;Password=Azure1234567;Connect Timeout=60;Encrypt=True;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new Log.Configuration());
             modelBuilder.ApplyConfiguration(new User.Configuration());
             modelBuilder.ApplyConfiguration(new Group.Configuration());
             modelBuilder.ApplyConfiguration(new SubjectCall.Configuration());
@@ -50,6 +54,7 @@ namespace Database.Data
             modelBuilder.ApplyConfiguration(new ParityIndependentScheduleSubject.ParityIndependentConfiguration());
         }
 
+        public DbSet<Log> Logs => _logs;
         public DbSet<User> Users => _users;
         public DbSet<Group> Groups => _groups;
         public DbSet<SubjectCall> SubjectCalls => _subjectCalls;
@@ -59,10 +64,10 @@ namespace Database.Data
         public DbSet<ParityDependentScheduleSubject> ParityDependentScheduleSubjects => _parityDependentScheduleSubject;
         public DbSet<ParityIndependentScheduleSubject> ParityIndependentScheduleSubjects => _parityIndependentScheduleSubject;
 
-        public void CreateUser(int telegramID, long chatID, out User user)
+        public void CreateUser(int telegramID, long chatID, string name, out User user)
         {
-            Users.Add(user = new User(telegramID, chatID));
-            SaveChanges(); 
+            Users.Add(user = new User(telegramID, chatID, name));
+            SaveChanges();
         }
         public bool GetUserByTelegramId(int telegramID, out User user)
         {
@@ -70,6 +75,11 @@ namespace Database.Data
             return user == null ? false : true;
         }
         public void CreateGroup(string name, DateTime startEducation, User user, out Group group) => Groups.Add(group = new Group(name, startEducation, user));
-        public Group GetGroupById(int id) => Groups.Include(x=> x.ScheduleSubjects).First(x => x.ID == id);
+        public Group GetGroupById(int id) => Groups.Include(x => x.ScheduleSubjects).First(x => x.ID == id);
+        public void AddLog(string log)
+        {
+            Logs.Add(new Log(log));
+            SaveChanges();
+        }
     }
 }

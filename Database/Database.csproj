@@ -128,6 +128,7 @@
   <ItemGroup>
     <Compile Include="Data\DataContext.cs" />
     <Compile Include="Data\Model\Group.cs" />
+    <Compile Include="Data\Model\Log.cs" />
     <Compile Include="Data\Model\ParityDependentScheduleSubject.cs" />
     <Compile Include="Data\Model\ParityIndependentScheduleSubject.cs" />
     <Compile Include="Data\Model\ScheduleField.cs" />
@@ -136,9 +137,9 @@
     <Compile Include="Data\Model\SubjectInstance.cs" />
     <Compile Include="Data\SubjectType.cs" />
     <Compile Include="Data\Model\User.cs" />
-    <Compile Include="Migrations\20190210162132_I.cs" />
-    <Compile Include="Migrations\20190210162132_I.designer.cs">
-      <DependentUpon>20190210162132_I.cs</DependentUpon>
+    <Compile Include="Migrations\20190211203759_I.cs" />
+    <Compile Include="Migrations\20190211203759_I.designer.cs">
+      <DependentUpon>20190211203759_I.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DataContextModelSnapshot.cs" />
     <Compile Include="Program.cs" />

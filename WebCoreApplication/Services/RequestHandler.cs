@@ -24,7 +24,7 @@ namespace WebCoreApplication.Services
 
         public static Responce Handle(Update update, Request request)
         {
-            UserModel userModel = Data.GetUserModel(update.Message.From);
+            UserModel userModel = Data.GetUserModel(update.Message);
             Responce responce;
             switch (request)
             {

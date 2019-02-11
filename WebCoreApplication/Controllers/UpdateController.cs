@@ -16,13 +16,11 @@ namespace WebApplication.Controllers
     [Route("api/message/update")]
     public class UpdateController : Controller
     {
-        private readonly IUpdateService _updateService;
-        public UpdateController(IUpdateService updateService) => _updateService = updateService;
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]Update update)
         {
-            await _updateService.EchoAsync(update);
+            await UpdateService.EchoAsync(update);
             return Ok();
         }
     }

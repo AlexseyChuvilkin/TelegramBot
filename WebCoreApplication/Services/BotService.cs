@@ -12,9 +12,9 @@ namespace WebApplication.Services
         private readonly BotConfiguration _botConfiguration;
         private readonly TelegramBotClient _telegramBotClient;
 
-        public BotService(IOptions<BotConfiguration> botConfiguration)
+        public BotService(BotConfiguration botConfiguration)
         {
-            _botConfiguration = botConfiguration.Value;
+            _botConfiguration = botConfiguration;
             _telegramBotClient = string.IsNullOrEmpty(_botConfiguration.Socks5Host) ? new TelegramBotClient(_botConfiguration.BotToken) : throw new NotImplementedException();
         }
 

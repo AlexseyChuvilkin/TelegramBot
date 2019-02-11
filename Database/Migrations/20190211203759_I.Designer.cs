@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190210162132_I")]
+    [Migration("20190211203759_I")]
     partial class I
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,20 @@ namespace Database.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Database.Data.Model.Log", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("Database.Data.Model.ScheduleField", b =>
@@ -132,7 +146,12 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<long>("ChatID");
+
                     b.Property<int?>("GroupID");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<int>("TelegramID");
 

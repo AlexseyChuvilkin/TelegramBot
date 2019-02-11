@@ -4,12 +4,13 @@ using Database.Data.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WebApplication.Services;
 
 namespace WebCoreApplication.Models
 {
     public static class Data
     {
-        private const int _timeDifferent = 0;
+        private const int _timeDifferent = 3;
         static private DataContext _dataContext;
         static private Dictionary<int, UserModel> _userModels;
         static private Dictionary<UserModel, string> _creationGroup;
@@ -28,13 +29,14 @@ namespace WebCoreApplication.Models
             _subjectCalls.Sort();
         }
 
+        static public void AddLog(string log) => _dataContext.AddLog(log);
         static public UserModel GetUserModel(Telegram.Bot.Types.Message message)
         {
             if (_userModels.TryGetValue(message.From.Id, out UserModel userModel))
                 return userModel;
 
             if (!_dataContext.GetUserByTelegramId(message.From.Id, out User data))
-                _dataContext.CreateUser(message.From.Id, message.Chat.Id, out data);
+                _dataContext.CreateUser(message.From.Id, message.Chat.Id, message.From.Username + " (" + message.From.FirstName + " " + message.From.LastName + ")", out data);
             UserModel result;
             _userModels.Add(message.From.Id, result = new UserModel(data, message.From));
             _dataContext.SaveChanges();
@@ -73,5 +75,38 @@ namespace WebCoreApplication.Models
         static public bool GetFullShedule(UserModel userModel, out string schedule) => ScheduleView.GetSchedule(userModel.Data.Group, out schedule);
         static public bool GetSheduleOnTomorrow(UserModel userModel, out string schedule) => ScheduleView.GetSchedule(userModel.Data.Group, CorrectedDateTime.AddDays(1), _subjectCalls, out schedule);
         static public bool GetSheduleOnToday(UserModel userModel, out string schedule) => ScheduleView.GetSchedule(userModel.Data.Group, CorrectedDateTime, _subjectCalls, out schedule);
+
+        static public void StartSubjectDateTimeNotificate(int order)
+        {
+            foreach (Group group in _dataContext.Groups)
+            {
+                List<ScheduleViewItem> schedule = ScheduleView.GetSchedule(group, CorrectedDateTime.DayOfWeek, group.Parity(CorrectedDateTime));
+                if (schedule.Select(x => x.Order).Min() == order)
+                {
+                    ScheduleViewItem subject = schedule.First(x => x.Order == order);
+                    foreach (User user in group.Users)
+                        UpdateService.BotService.Client.SendTextMessageAsync(user.ChatID, "`Первая пара " + subject.SubjectInstance.Subject.Name + " " + ScheduleView.GetSubjectTypeString(subject.SubjectInstance.SubjectType) + " в " + subject.SubjectInstance.Audience + " аудитории. Ведёт " + subject.SubjectInstance.Teacher + "`.", Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                }
+            }
+        }
+        static public void EndSubjectDateTimeNotificate(int order)
+        {
+            foreach (Group group in _dataContext.Groups)
+            {
+                List<ScheduleViewItem> schedule = ScheduleView.GetSchedule(group, CorrectedDateTime.DayOfWeek, group.Parity(CorrectedDateTime));
+                if (schedule.Select(x => x.Order).Contains(order))
+                {
+                    ScheduleViewItem subject = schedule.First(x => x.Order == order);
+                    foreach (User user in group.Users)
+                    {
+                        ScheduleViewItem? nextSubject = schedule.FirstOrDefault(z => z.Order == order + 1);
+                        if (nextSubject.HasValue)
+                            UpdateService.BotService.Client.SendTextMessageAsync(user.ChatID, "`Пара " + subject.SubjectInstance.Subject.Name + " закончилась. Следующая пара " + nextSubject.Value.SubjectInstance.Subject.Name + " " + ScheduleView.GetSubjectTypeString(nextSubject.Value.SubjectInstance.SubjectType) + " в " + nextSubject.Value.SubjectInstance.Audience + " аудитории. Ведёт " + nextSubject.Value.SubjectInstance.Teacher + "`.", Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                        else
+                            UpdateService.BotService.Client.SendTextMessageAsync(user.ChatID, "`Пара " + subject.SubjectInstance.Subject.Name + " закончилась. Теперь домой!`", Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                    }
+                }
+            }
+        }
     }
 }

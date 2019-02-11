@@ -7,13 +7,15 @@ using WebCoreApplication.Services;
 
 namespace WebApplication.Services
 {
-    public class UpdateService : IUpdateService
+    public static class UpdateService
     {
-        private readonly IBotService _botService;
+        static private IBotService _botService;
 
-        public UpdateService(IBotService botService) => _botService = botService;
+        static public void Initialize(IBotService botService) => _botService = botService;
 
-        public async Task EchoAsync(Update update)
+        static public IBotService BotService => _botService;
+
+        static public async Task EchoAsync(Update update)
         {
             if (update.Type != UpdateType.Message)
                 return;
@@ -21,13 +23,13 @@ namespace WebApplication.Services
             if (update.Message.Type == MessageType.Text)
                 if (RequestService.GetRequestByMessage(update.Message.Text, out Request request))
                 {
-                    UserModel userModel = Data.GetUserModel(update.Message.From);
+                    UserModel userModel = Data.GetUserModel(update.Message);
                     Responce responce = RequestHandler.Handle(update, request);
                     await _botService.Client.SendTextMessageAsync(update.Message.Chat.Id, responce.TextMessage, ParseMode.Markdown, replyMarkup: responce.Keyboard);
                 }
                 else
                 {
-                    UserModel userModel = Data.GetUserModel(update.Message.From);
+                    UserModel userModel = Data.GetUserModel(update.Message);
                     switch (userModel.LastRequest[userModel.LastRequest.Count - 1])
                     {
                         case Request.None:

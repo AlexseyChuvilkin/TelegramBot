@@ -24,6 +24,19 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Logs",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logs", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubjectCalls",
                 columns: table => new
                 {
@@ -58,6 +71,8 @@ namespace Database.Migrations
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     TelegramID = table.Column<int>(nullable: false),
+                    ChatID = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
                     GroupID = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -209,6 +224,9 @@ namespace Database.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_ScheduleFields_SubjectInstances_SubjectID",
                 table: "ScheduleFields");
+
+            migrationBuilder.DropTable(
+                name: "Logs");
 
             migrationBuilder.DropTable(
                 name: "SubjectCalls");
