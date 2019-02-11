@@ -24,19 +24,19 @@ namespace WebCoreApplication.Models
             _dataContext = new DataContext();
             _userModels = new Dictionary<int, UserModel>();
             _creationGroup = new Dictionary<UserModel, string>();
-            _subjectCalls = _dataContext.SubjectCalls.ToList() ;
+            _subjectCalls = _dataContext.SubjectCalls.ToList();
             _subjectCalls.Sort();
         }
 
-        static public UserModel GetUserModel(Telegram.Bot.Types.User user)
+        static public UserModel GetUserModel(Telegram.Bot.Types.Message message)
         {
-            if (_userModels.TryGetValue(user.Id, out UserModel userModel))
+            if (_userModels.TryGetValue(message.From.Id, out UserModel userModel))
                 return userModel;
 
-            if (!_dataContext.GetUserByTelegramId(user.Id, out User data))
-                _dataContext.CreateUser(user.Id, out data);
+            if (!_dataContext.GetUserByTelegramId(message.From.Id, out User data))
+                _dataContext.CreateUser(message.From.Id, message.Chat.Id, out data);
             UserModel result;
-            _userModels.Add(user.Id, result = new UserModel(data, user));
+            _userModels.Add(message.From.Id, result = new UserModel(data, message.From));
             _dataContext.SaveChanges();
             return result;
         }

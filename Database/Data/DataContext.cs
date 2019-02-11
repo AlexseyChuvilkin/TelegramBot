@@ -59,9 +59,9 @@ namespace Database.Data
         public DbSet<ParityDependentScheduleSubject> ParityDependentScheduleSubjects => _parityDependentScheduleSubject;
         public DbSet<ParityIndependentScheduleSubject> ParityIndependentScheduleSubjects => _parityIndependentScheduleSubject;
 
-        public void CreateUser(int telegramID, out User user)
+        public void CreateUser(int telegramID, long chatID, out User user)
         {
-            Users.Add(user = new User(telegramID));
+            Users.Add(user = new User(telegramID, chatID));
             SaveChanges(); 
         }
         public bool GetUserByTelegramId(int telegramID, out User user)

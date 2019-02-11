@@ -9,11 +9,6 @@ namespace Database
     {
         private static void Main(string[] args)
         {
-            TimeSpan timeSpan1 = new TimeSpan(0, 5, 0);
-            TimeSpan timeSpan2 = new TimeSpan(0, 10, 0);
-            TimeSpan timeSpan3 = timeSpan1 - timeSpan2;
-            bool b = timeSpan1 > timeSpan2;
-            int a;
             //using (DataContext dataContext = new DataContext())
             //{
             //    User user = new User(1);
