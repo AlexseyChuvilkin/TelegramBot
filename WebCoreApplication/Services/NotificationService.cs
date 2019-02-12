@@ -6,7 +6,7 @@ using WebCoreApplication.Models;
 
 namespace WebCoreApplication.Services
 {
-    static public class NotificationService 
+    static public class NotificationService
     {
         private struct NotificationData
         {
@@ -36,21 +36,22 @@ namespace WebCoreApplication.Services
             _endSubjectDateTimeNotifications = new List<NotificationData>();
             _beforehandTime = new TimeSpan(0, 5, 0);
             _updateTimer = new TimeSpan(0, 0, 40);
-            _deltaTime = new TimeSpan(0, 1, 0);
+            _deltaTime = TimeSpan.Zero;
 
             for (; ; )
             {
                 if ((Data.CorrectedDateTime - _startToday).Days > 1)
                     UpdateDateTimeNotifications();
 
-                for (int i = _startSubjectDateTimeNotifications.Count - 1; i >= 0; i--)
+                for (int i = 0; i != _startSubjectDateTimeNotifications.Count;)
                 {
                     if ((Data.CorrectedDateTime - _startSubjectDateTimeNotifications[i].DateTime) < _deltaTime)
                         continue;
                     Data.StartSubjectDateTimeNotificate(_startSubjectDateTimeNotifications[i].Order);
                     _startSubjectDateTimeNotifications.RemoveAt(i);
                 }
-                for (int i = _endSubjectDateTimeNotifications.Count - 1; i >= 0; i--)
+
+                for (int i = 0; i != _endSubjectDateTimeNotifications.Count;)
                 {
                     if ((Data.CorrectedDateTime - _endSubjectDateTimeNotifications[i].DateTime) < _deltaTime)
                         continue;
@@ -63,17 +64,21 @@ namespace WebCoreApplication.Services
         static private void UpdateDateTimeNotifications()
         {
             _startToday = new DateTime(Data.CorrectedDateTime.Year, Data.CorrectedDateTime.Month, Data.CorrectedDateTime.Day);
-
+            Data.DataContext.AddLog(Data.CorrectedDateTime + " " + _startToday);
             _startSubjectDateTimeNotifications.Clear();
             _endSubjectDateTimeNotifications.Clear();
             _subjectCalls = new List<SubjectCall>(Data.DataContext.SubjectCalls);
 
             foreach (SubjectCall call in _subjectCalls)
             {
-                _startSubjectDateTimeNotifications.Add(new NotificationData(_startToday.Add(call.StartLesson - _beforehandTime), call.Order));
-                _endSubjectDateTimeNotifications.Add(new NotificationData(_startToday.Add(call.EndLesson), call.Order));
+                DateTime startLessonTime = _startToday.Add(call.StartLesson - _beforehandTime);
+                DateTime endLessonTime = _startToday.Add(call.EndLesson);
+
+                if ((Data.CorrectedDateTime - startLessonTime) < _deltaTime)
+                    _startSubjectDateTimeNotifications.Add(new NotificationData(startLessonTime, call.Order));
+                if ((Data.CorrectedDateTime - endLessonTime) < _deltaTime)
+                    _endSubjectDateTimeNotifications.Add(new NotificationData(endLessonTime, call.Order));
             }
         }
-
     }
 }

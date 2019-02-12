@@ -99,9 +99,9 @@ namespace WebCoreApplication.Models
                     ScheduleViewItem subject = schedule.First(x => x.Order == order);
                     foreach (User user in group.Users)
                     {
-                        ScheduleViewItem? nextSubject = schedule.FirstOrDefault(z => z.Order == order + 1);
-                        if (nextSubject.HasValue)
-                            UpdateService.BotService.Client.SendTextMessageAsync(user.ChatID, "`Пара " + subject.SubjectInstance.Subject.Name + " закончилась. Следующая пара " + nextSubject.Value.SubjectInstance.Subject.Name + " " + ScheduleView.GetSubjectTypeString(nextSubject.Value.SubjectInstance.SubjectType) + " в " + nextSubject.Value.SubjectInstance.Audience + " аудитории. Ведёт " + nextSubject.Value.SubjectInstance.Teacher + "`.", Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                        ScheduleViewItem nextSubject = schedule.FirstOrDefault(z => z.Order == order + 1);
+                        if (nextSubject != null)
+                            UpdateService.BotService.Client.SendTextMessageAsync(user.ChatID, "`Пара " + subject.SubjectInstance.Subject.Name + " закончилась. Следующая пара " + nextSubject.SubjectInstance.Subject.Name + " " + ScheduleView.GetSubjectTypeString(nextSubject.SubjectInstance.SubjectType) + " в " + nextSubject.SubjectInstance.Audience + " аудитории. Ведёт " + nextSubject.SubjectInstance.Teacher + "`.", Telegram.Bot.Types.Enums.ParseMode.Markdown);
                         else
                             UpdateService.BotService.Client.SendTextMessageAsync(user.ChatID, "`Пара " + subject.SubjectInstance.Subject.Name + " закончилась. Теперь домой!`", Telegram.Bot.Types.Enums.ParseMode.Markdown);
                     }

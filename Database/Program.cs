@@ -12,6 +12,8 @@ namespace Database
             using (DataContext dataContext = new DataContext())
             {
                 //User user = new User(399105658, 399105658, "alexseychik (Alexsey Chuvilkin)");
+                //User user = new User(347750369, 347750369, "withouttitle (ОЛЕГИЧ )");
+                //User user = new User(367622676, 367622676, "HansGros (Sergey )");
                 //dataContext.Users.Add(user);
 
                 //Group group = new Group("ЭВМ.Б-61", new DateTime(2019, 2, 7), user);

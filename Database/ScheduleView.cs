@@ -153,7 +153,7 @@ namespace Database
         }
     }
 
-    public struct ScheduleViewItem
+    public class ScheduleViewItem
     {
         public int Order;
         public SubjectInstance SubjectInstance;
