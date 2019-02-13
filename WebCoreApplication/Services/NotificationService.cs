@@ -40,7 +40,7 @@ namespace WebCoreApplication.Services
 
             for (; ; )
             {
-                if ((Data.CorrectedDateTime - _startToday).Days > 1)
+                if (Data.CorrectedDateTime.Day != _startToday.Day)
                     UpdateDateTimeNotifications();
 
                 for (int i = 0; i != _startSubjectDateTimeNotifications.Count;)
@@ -63,8 +63,8 @@ namespace WebCoreApplication.Services
         }
         static private void UpdateDateTimeNotifications()
         {
-            _startToday = new DateTime(Data.CorrectedDateTime.Year, Data.CorrectedDateTime.Month, Data.CorrectedDateTime.Day);
             Data.DataContext.AddLog(Data.CorrectedDateTime + " " + _startToday);
+            _startToday = new DateTime(Data.CorrectedDateTime.Year, Data.CorrectedDateTime.Month, Data.CorrectedDateTime.Day);
             _startSubjectDateTimeNotifications.Clear();
             _endSubjectDateTimeNotifications.Clear();
             _subjectCalls = new List<SubjectCall>(Data.DataContext.SubjectCalls);
