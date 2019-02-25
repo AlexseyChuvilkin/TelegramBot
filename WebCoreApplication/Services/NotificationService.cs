@@ -27,8 +27,12 @@ namespace WebCoreApplication.Services
         static private List<NotificationData> _startSubjectDateTimeNotifications;
         static private List<NotificationData> _endSubjectDateTimeNotifications;
         static private DateTime _startToday;
-
-        static public void Initialize() => new Thread(Notificate).Start();
+        static private Thread _main;
+        static public void Initialize()
+        {
+            _main = new Thread(Notificate);
+            _main.Start();
+        }
 
         static private void Notificate()
         {
@@ -46,7 +50,7 @@ namespace WebCoreApplication.Services
                 for (int i = 0; i != _startSubjectDateTimeNotifications.Count;)
                 {
                     if ((Data.CorrectedDateTime - _startSubjectDateTimeNotifications[i].DateTime) < _deltaTime)
-                        continue;
+                        break;
                     Data.StartSubjectDateTimeNotificate(_startSubjectDateTimeNotifications[i].Order);
                     _startSubjectDateTimeNotifications.RemoveAt(i);
                 }
@@ -54,7 +58,7 @@ namespace WebCoreApplication.Services
                 for (int i = 0; i != _endSubjectDateTimeNotifications.Count;)
                 {
                     if ((Data.CorrectedDateTime - _endSubjectDateTimeNotifications[i].DateTime) < _deltaTime)
-                        continue;
+                        break;
                     Data.EndSubjectDateTimeNotificate(_endSubjectDateTimeNotifications[i].Order);
                     _endSubjectDateTimeNotifications.RemoveAt(i);
                 }

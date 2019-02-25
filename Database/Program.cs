@@ -33,7 +33,7 @@ namespace Database
                 //Subject ibmArchitecture = new Subject("Архитектура ЭВМ");
                 //Subject ibm = new Subject("ЭВМ");
                 //Subject physicalCulture = new Subject("Физкультура");
-                //Subject russian = new Subject("Русский язык и кулльтура речи");
+                //Subject russian = new Subject("Русский язык и культура речи");
                 //Subject economy = new Subject("Экономика");
                 //Subject jurisprudence = new Subject("Правоведение");
                 //Subject circuitry = new Subject("Схемотехника");
